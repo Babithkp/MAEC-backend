@@ -6,7 +6,7 @@
   "scripts": {
     "build": "prisma generate && rimraf dist && tsc",
     "start": "nodemon src/index.ts",
-   "dev": "nodemon src/index.ts",
+    "dev": "nodemon src/index.ts",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
     "postinstall": "prisma generate"
