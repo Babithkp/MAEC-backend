@@ -2,6 +2,11 @@
   "name": "maec_backend",
   "version": "1.0.0",
   "description": "",
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ],
   "main": "index.js",
   "scripts": {
     "build": "prisma generate && rimraf dist && tsc",
