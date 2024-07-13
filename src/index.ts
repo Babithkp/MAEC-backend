@@ -7,6 +7,8 @@ const app = express()
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+import dotenv from "dotenv";
+dotenv.config();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
