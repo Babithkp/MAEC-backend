@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  email_address String      @unique
+  password      String
+  profile       Profile?
+  evaluation    Evaluation?
+  documents     Documents?
+}
+
+model Profile {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  first_name     String
+  middle_name    String?
+  last_name      String
+  birth_day      String
+  birth_month    String
+  birth_year     String
+  gender         String
+  street_address String
+  city           String
+  state          String
+  postal_code    String
+  country        String
+  phone_number   String
+  paid_amount    String?
+  user           User    @relation(fields: [userId], references: [id])
+  userId         String  @unique @db.ObjectId
+}
+
+model Evaluation {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  courseByCourse Int?
+  certificate    Int?
+  transcripte    Int?
+  language       String?
+  user           User    @relation(fields: [userId], references: [id])
+  userId         String  @unique @db.ObjectId
+}
+
+model Documents {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  courseByCourse     String[]
+  academicCredentail String[]
+  translation        String[]
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String   @unique @db.ObjectId
+}
