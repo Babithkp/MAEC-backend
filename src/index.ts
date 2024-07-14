@@ -2,7 +2,7 @@ import express from "express"
 import cors from "cors";
 import multer from "multer";
 import { maecFileUpload } from "./controller/fileUploadController";
-import { addDocuments, addEvalutions, createUser, getDocumentByUserId, getUserEvalutionById, getUserProfileById, updateProfile, userLogin } from "./controller/crudController";
+import { addDocuments, addEvalutions, createUser, getAllUserDetails, getDocumentByUserId, getUserEvalutionById, getUserProfileById, updateProfile, userLogin } from "./controller/crudController";
 const app = express()
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +31,8 @@ app.post("/api/getUserEvalutionById",getUserEvalutionById)
 app.post("/api/addDocuments",addDocuments)
 
 app.post("/api/getDocumentByUserId",getDocumentByUserId)
+
+app.get("/api/getAllUserDetails",getAllUserDetails)
 
 
 app.get('/', (req, res) => {

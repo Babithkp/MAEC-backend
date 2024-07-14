@@ -295,3 +295,26 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
     console.log();
   }
 };
+
+
+export const getAllUserDetails = async (req:Request,res:Response) =>{
+  try{
+    const userData = await prisma.user.findMany({
+      include:{
+        profile:true,
+        evaluation:{
+          include:{
+            documents:true
+          }
+        }
+      }
+    })
+    
+    if(userData){
+      res.json({data:userData})
+    }
+  }catch(err){
+    console.log(err);
+    
+  }
+}
