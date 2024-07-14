@@ -1,13 +1,12 @@
-import { Request, Response } from "express";
-import dotenv from "dotenv";
+import { Request, Response } from "express";import dotenv from "dotenv";
 dotenv.config();
 import {
-    PutObjectCommand,
-    PutObjectCommandInput,
-    S3Client,
-  } from "@aws-sdk/client-s3";
+  PutObjectCommand,
+  PutObjectCommandInput,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
-  const region = process.env.AWS_REGION;
+const region = process.env.AWS_REGION;
 const accessKeyId = process.env.AWS_ACCESS_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 if (!region || !accessKeyId || !secretAccessKey) {
@@ -36,11 +35,7 @@ const s3uploadFile = async (files: any) => {
   );
 };
 
-
-export const maecFileUpload = async (
-  req: Request,
-  res: Response
-) => {
+export const maecFileUpload = async (req: Request, res: Response) => {
   try {
     const response = await s3uploadFile(req.files);
     if (response) {

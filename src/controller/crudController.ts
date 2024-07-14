@@ -1,5 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-import { Request, Response } from "express";
+import { PrismaClient, Prisma } from "@prisma/client";import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
@@ -296,25 +295,23 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getAllUserDetails = async (req:Request,res:Response) =>{
-  try{
+export const getAllUserDetails = async (req: Request, res: Response) => {
+  try {
     const userData = await prisma.user.findMany({
-      include:{
-        profile:true,
-        evaluation:{
-          include:{
-            documents:true
-          }
-        }
-      }
-    })
-    
-    if(userData){
-      res.json({data:userData})
+      include: {
+        profile: true,
+        evaluation: {
+          include: {
+            documents: true,
+          },
+        },
+      },
+    });
+
+    if (userData) {
+      res.json({ data: userData });
     }
-  }catch(err){
+  } catch (err) {
     console.log(err);
-    
   }
-}
+};

@@ -1,9 +1,19 @@
-import express from "express"
+import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { maecFileUpload } from "./controller/fileUploadController";
-import { addDocuments, addEvalutions, createUser, getAllUserDetails, getDocumentByUserId, getUserEvalutionById, getUserProfileById, updateProfile, userLogin } from "./controller/crudController";
-const app = express()
+import {
+  addDocuments,
+  addEvalutions,
+  createUser,
+  getAllUserDetails,
+  getDocumentByUserId,
+  getUserEvalutionById,
+  getUserProfileById,
+  updateProfile,
+  userLogin,
+} from "./controller/crudController";
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -15,31 +25,28 @@ const upload = multer({ storage });
 
 app.post("/api/fileupload", upload.any(), maecFileUpload);
 
-app.post("/api/createUser",createUser)
+app.post("/api/createUser", createUser);
 
+app.post("/api/userLogin", userLogin);
 
-app.post("/api/userLogin",userLogin)
+app.post("/api/updateProfile", updateProfile);
 
-app.post("/api/updateProfile",updateProfile)
+app.post("/api/getUserProfileById", getUserProfileById);
 
-app.post("/api/getUserProfileById",getUserProfileById)
+app.post("/api/addEvalutions", addEvalutions);
 
-app.post("/api/addEvalutions",addEvalutions)
+app.post("/api/getUserEvalutionById", getUserEvalutionById);
 
-app.post("/api/getUserEvalutionById",getUserEvalutionById)
+app.post("/api/addDocuments", addDocuments);
 
-app.post("/api/addDocuments",addDocuments)
+app.post("/api/getDocumentByUserId", getDocumentByUserId);
 
-app.post("/api/getDocumentByUserId",getDocumentByUserId)
+app.get("/api/getAllUserDetails", getAllUserDetails);
 
-app.get("/api/getAllUserDetails",getAllUserDetails)
+app.get("/", (req, res) => {
+  res.json({ message: "Server started" });
+});
 
-
-app.get('/', (req, res) => {
-    res.json({message:"Server started"})
-})
-
-app.listen(3000,()=>{
-    console.log("Server started listening on port 3000");
-    
-})
+app.listen(3000, () => {
+  console.log("Server started listening on port 3000");
+});
