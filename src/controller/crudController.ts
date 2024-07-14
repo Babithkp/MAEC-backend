@@ -166,7 +166,7 @@ export const addEvalutions = async (req: Request, res: Response) => {
         data: {
           courseByCourse: userData.courseByCourse,
           certificate: userData.certificate,
-          transcripte: userData.transcripte,
+          transcript: userData.transcript,
           language: userData.language,
           user: {
             connect: {
@@ -182,7 +182,7 @@ export const addEvalutions = async (req: Request, res: Response) => {
       data: {
         courseByCourse: userData.courseByCourse,
         certificate: userData.certificate,
-        transcripte: userData.transcript,
+        transcript: userData.transcript,
         language: userData.language,
         user: {
           connect: {
@@ -239,8 +239,8 @@ export const addDocuments = async (req: Request, res: Response) => {
         },
         data: {
           courseByCourse: filesData.courseByCourse,
-          academicCredentail: filesData.academicCredentail,
-          translation: filesData.translation,
+          certificate: filesData.certificate,
+          transcript: filesData.transcript,
           evaluation: {
             connect: {
               id: getUser?.id,
@@ -256,8 +256,8 @@ export const addDocuments = async (req: Request, res: Response) => {
     const uploadFiles = await prisma.documents.create({
       data: {
         courseByCourse: filesData.courseByCourse,
-        academicCredentail: filesData.academicCredentail,
-        translation: filesData.translation,
+        certificate: filesData.certificate,
+        transcript: filesData.transcript,
         evaluation: {
           connect: {
             id: getUser?.id,

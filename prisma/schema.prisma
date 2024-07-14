@@ -44,7 +44,7 @@ model Evaluation {
   id             String     @id @default(auto()) @map("_id") @db.ObjectId
   courseByCourse Int?
   certificate    Int?
-  transcripte    Int?
+  transcript     Int?
   language       String?
   user           User       @relation(fields: [userId], references: [id])
   userId         String     @unique @db.ObjectId
@@ -52,11 +52,11 @@ model Evaluation {
 }
 
 model Documents {
-  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
-  courseByCourse     String[]
-  academicCredentail String[]
-  translation        String[]
-  paid_amount        String?
-  evaluation         Evaluation @relation(fields: [evaluationId], references: [id])
-  evaluationId       String     @unique @db.ObjectId
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  courseByCourse String[]
+  certificate    String[]
+  transcript     String[]
+  paid_amount    String?
+  evaluation     Evaluation @relation(fields: [evaluationId], references: [id])
+  evaluationId   String     @unique @db.ObjectId
 }

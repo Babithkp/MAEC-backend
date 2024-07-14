@@ -185,7 +185,7 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 data: {
                     courseByCourse: userData.courseByCourse,
                     certificate: userData.certificate,
-                    transcripte: userData.transcripte,
+                    transcript: userData.transcript,
                     language: userData.language,
                     user: {
                         connect: {
@@ -200,7 +200,7 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             data: {
                 courseByCourse: userData.courseByCourse,
                 certificate: userData.certificate,
-                transcripte: userData.transcript,
+                transcript: userData.transcript,
                 language: userData.language,
                 user: {
                     connect: {
@@ -259,8 +259,8 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 },
                 data: {
                     courseByCourse: filesData.courseByCourse,
-                    academicCredentail: filesData.academicCredentail,
-                    translation: filesData.translation,
+                    certificate: filesData.certificate,
+                    transcript: filesData.transcript,
                     evaluation: {
                         connect: {
                             id: getUser === null || getUser === void 0 ? void 0 : getUser.id,
@@ -275,8 +275,8 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const uploadFiles = yield prisma.documents.create({
             data: {
                 courseByCourse: filesData.courseByCourse,
-                academicCredentail: filesData.academicCredentail,
-                translation: filesData.translation,
+                certificate: filesData.certificate,
+                transcript: filesData.transcript,
                 evaluation: {
                     connect: {
                         id: getUser === null || getUser === void 0 ? void 0 : getUser.id,
