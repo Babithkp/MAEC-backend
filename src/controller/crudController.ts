@@ -52,6 +52,7 @@ export const userLogin = async (req: Request, res: Response) => {
       return res.json({
         message: "Sign in successfully",
         userId: response?.id,
+        usermail: response?.email_address,
         token: token,
       });
     }
@@ -129,12 +130,12 @@ export const updateProfile = async (req: Request, res: Response) => {
 };
 
 export const getUserProfileById = async (req: Request, res: Response) => {
-  const userData = req.body;
+  const userData = req.body.userId;
   if (!userData) return res.json({ error: "Invalid User data provided" });
   try {
     const userProfile = await prisma.profile.findUnique({
       where: {
-        userId: userData.userId,
+        userId: userData,
       },
     });
     if (userProfile) {
@@ -144,5 +145,153 @@ export const getUserProfileById = async (req: Request, res: Response) => {
     }
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const addEvalutions = async (req: Request, res: Response) => {
+  const userData = req.body;
+  if (!userData) return res.json({ error: "Invalid User data provided" });
+
+  try {
+    const isExist = await prisma.evaluation.findUnique({
+      where: {
+        userId: userData.userId,
+      },
+    });
+    if (isExist) {
+      await prisma.evaluation.update({
+        where: {
+          userId: userData.userId,
+        },
+        data: {
+          courseByCourse: userData.courseByCourse,
+          certificate: userData.certificate,
+          transcripte: userData.transcripte,
+          language: userData.language,
+          user: {
+            connect: {
+              id: userData.userId,
+            },
+          },
+        },
+      });
+      return res.json({ message: "Evaluation updated successfully" });
+    }
+
+    const evalutionCreate = await prisma.evaluation.create({
+      data: {
+        courseByCourse: userData.courseByCourse,
+        certificate: userData.certificate,
+        transcripte: userData.transcript,
+        language: userData.language,
+        user: {
+          connect: {
+            id: userData.userId,
+          },
+        },
+      },
+    });
+    if (evalutionCreate) {
+      return res.json({ message: "Evaluation created successfully" });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getUserEvalutionById = async (req: Request, res: Response) => {
+  const userId = await req.body.userId;
+  if (!userId) return res.json({ error: "Invalid User data provided" });
+  try {
+    const evaluationData = await prisma.evaluation.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+    if (evaluationData) {
+      return res.json({ data: evaluationData });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const addDocuments = async (req: Request, res: Response) => {
+  const filesData = await req.body;
+  if (!filesData) return res.json({ error: "Invalid User data provided" });
+
+  try {
+    const getUser = await prisma.evaluation.findUnique({
+      where: {
+        userId: filesData.userId,
+      },
+    });
+
+    const isExist = await prisma.documents.findUnique({
+      where: {
+        evaluationId: getUser?.id,
+      },
+    });
+    if (isExist) {
+      const uploadFiles = await prisma.documents.update({
+        where: {
+          evaluationId: getUser?.id,
+        },
+        data: {
+          courseByCourse: filesData.courseByCourse,
+          academicCredentail: filesData.academicCredentail,
+          translation: filesData.translation,
+          evaluation: {
+            connect: {
+              id: getUser?.id,
+            },
+          },
+        },
+      });
+      if (uploadFiles) {
+        return res.json({ message: "Upload files successfully" });
+      }
+    }
+
+    const uploadFiles = await prisma.documents.create({
+      data: {
+        courseByCourse: filesData.courseByCourse,
+        academicCredentail: filesData.academicCredentail,
+        translation: filesData.translation,
+        evaluation: {
+          connect: {
+            id: getUser?.id,
+          },
+        },
+      },
+    });
+    if (uploadFiles) {
+      return res.json({ message: "Upload files successfully" });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getDocumentByUserId = async (req: Request, res: Response) => {
+  const userId = await req.body.userId;
+  if (!userId) return res.json({ error: "Invalid User data provided" });
+
+  try {
+    const evaluation = await prisma.evaluation.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+    const documentData = await prisma.documents.findUnique({
+      where: {
+        evaluationId: evaluation?.id,
+      },
+    });
+    if (documentData) {
+      return res.json({ data: documentData });
+    }
+  } catch (err) {
+    console.log();
   }
 };

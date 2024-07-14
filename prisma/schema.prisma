@@ -14,12 +14,11 @@ datasource db {
 }
 
 model User {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  email_address String      @unique
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  email_address String       @unique
   password      String
   profile       Profile?
-  evaluation    Evaluation?
-  documents     Documents?
+  evaluation    Evaluation[]
 }
 
 model Profile {
@@ -37,26 +36,27 @@ model Profile {
   postal_code    String
   country        String
   phone_number   String
-  paid_amount    String?
   user           User    @relation(fields: [userId], references: [id])
   userId         String  @unique @db.ObjectId
 }
 
 model Evaluation {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
   courseByCourse Int?
   certificate    Int?
   transcripte    Int?
   language       String?
-  user           User    @relation(fields: [userId], references: [id])
-  userId         String  @unique @db.ObjectId
+  user           User       @relation(fields: [userId], references: [id])
+  userId         String     @unique @db.ObjectId
+  documents      Documents?
 }
 
 model Documents {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
   courseByCourse     String[]
   academicCredentail String[]
   translation        String[]
-  user               User     @relation(fields: [userId], references: [id])
-  userId             String   @unique @db.ObjectId
+  paid_amount        String?
+  evaluation         Evaluation @relation(fields: [evaluationId], references: [id])
+  evaluationId       String     @unique @db.ObjectId
 }
