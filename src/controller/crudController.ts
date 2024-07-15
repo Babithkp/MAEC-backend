@@ -9,6 +9,7 @@ export const createUser = async (req: Request, res: Response) => {
   if (userData.email === "admin@gmail.com")
     return res.json({ error: "Invalid User data provided" });
 
+  
   try {
     const isUserExist = await prisma.user.findUnique({
       where: {
