@@ -6,10 +6,13 @@ interface PaymentItemType {
   quantity: number;
 }
 
-if (!process.env.STRIPE_SECRET_KEY) {
+const stripeKey = process.env.STRIPE_SECRET_KEY
+if (!stripeKey) {
   throw new Error("Please provide a publish key");
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(stripeKey)
+console.log(stripeKey);
+
 
 export const makePayment = async (req: Request, res: Response) => {
   const paymentData = req.body.data;

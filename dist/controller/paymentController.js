@@ -14,10 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.makePayment = void 0;
 const stripe_1 = __importDefault(require("stripe"));
-if (!process.env.STRIPE_SECRET_KEY) {
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeKey) {
     throw new Error("Please provide a publish key");
 }
-const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY);
+const stripe = new stripe_1.default(stripeKey);
+console.log(stripeKey);
 const makePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paymentData = req.body.data;
     if (!paymentData)
