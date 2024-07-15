@@ -28,6 +28,10 @@ app.post("/api/addDocuments", crudController_1.addDocuments);
 app.post("/api/getDocumentByUserId", crudController_1.getDocumentByUserId);
 app.get("/api/getAllUserDetails", crudController_1.getAllUserDetails);
 app.post("/api/makePayment", paymentController_1.makePayment);
+app.post("/api/makePaymentPaypal", paymentController_1.makePaymentPaypal);
+app.post("/api/capturePaypalPayment", paymentController_1.capturePaypalPayment);
+app.post("/api/addTotalAmt", crudController_1.addTotalAmt);
+app.post("/api/compeltePayment", crudController_1.compeltePayment);
 app.get("/", (req, res) => {
     res.json({ message: "Server started" });
 });

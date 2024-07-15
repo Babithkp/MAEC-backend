@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllUserDetails = exports.getDocumentByUserId = exports.addDocuments = exports.getUserEvalutionById = exports.addEvalutions = exports.getUserProfileById = exports.updateProfile = exports.userLogin = exports.createUser = void 0;
+exports.compeltePayment = exports.addTotalAmt = exports.getAllUserDetails = exports.getDocumentByUserId = exports.addDocuments = exports.getUserEvalutionById = exports.addEvalutions = exports.getUserProfileById = exports.updateProfile = exports.userLogin = exports.createUser = void 0;
 const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma = new client_1.PrismaClient();
@@ -85,13 +85,13 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const isExist = yield prisma.profile.findUnique({
             where: {
-                userId: userData.userId,
+                userId: Math.floor(userData.userId),
             },
         });
         if (isExist) {
             yield prisma.profile.update({
                 where: {
-                    userId: userData.userId,
+                    userId: Math.floor(userData.userId),
                 },
                 data: {
                     first_name: userData.first_name,
@@ -109,7 +109,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                     phone_number: userData.phone_number,
                     user: {
                         connect: {
-                            id: userData.userId,
+                            id: Math.floor(userData.userId),
                         },
                     },
                 },
@@ -133,7 +133,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 phone_number: userData.phone_number,
                 user: {
                     connect: {
-                        id: userData.userId,
+                        id: Math.floor(userData.userId),
                     },
                 },
             },
@@ -152,7 +152,7 @@ const getUserProfileById = (req, res) => __awaiter(void 0, void 0, void 0, funct
     try {
         const userProfile = yield prisma.profile.findUnique({
             where: {
-                userId: userData,
+                userId: Math.floor(userData),
             },
         });
         if (userProfile) {
@@ -174,16 +174,16 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const isExist = yield prisma.evaluation.findUnique({
             where: {
-                userId: userData.userId
+                userId: Math.floor(userData.userId),
             },
         });
         if (isExist) {
             yield prisma.evaluation.update({
                 where: {
-                    userId: userData.userId,
+                    userId: Math.floor(userData.userId),
                     documents: {
-                        paid_amount: undefined
-                    }
+                        paid_amount: undefined,
+                    },
                 },
                 data: {
                     courseByCourse: userData.courseByCourse,
@@ -192,7 +192,7 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                     language: userData.language,
                     user: {
                         connect: {
-                            id: userData.userId,
+                            id: Math.floor(userData.userId),
                         },
                     },
                 },
@@ -207,7 +207,7 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 language: userData.language,
                 user: {
                     connect: {
-                        id: userData.userId,
+                        id: Math.floor(userData.userId),
                     },
                 },
             },
@@ -228,11 +228,11 @@ const getUserEvalutionById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     try {
         const evaluationData = yield prisma.evaluation.findUnique({
             where: {
-                userId: userId,
+                userId: Math.floor(userId),
                 documents: {
-                    paid_amount: undefined
-                }
-            }
+                    paid_amount: undefined,
+                },
+            },
         });
         if (evaluationData) {
             return res.json({ data: evaluationData });
@@ -251,21 +251,24 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const getUser = yield prisma.evaluation.findUnique({
             where: {
-                userId: filesData.userId,
+                userId: Math.floor(filesData.userId),
                 documents: {
-                    paid_amount: undefined
-                }
+                    paid_amount: undefined,
+                },
             },
         });
+        if (!getUser) {
+            throw new Error("user not found");
+        }
         const isExist = yield prisma.documents.findUnique({
             where: {
-                evaluationId: getUser === null || getUser === void 0 ? void 0 : getUser.id,
+                evaluationId: Math.floor(getUser.id),
             },
         });
         if (isExist) {
             const uploadFiles = yield prisma.documents.update({
                 where: {
-                    evaluationId: getUser === null || getUser === void 0 ? void 0 : getUser.id,
+                    evaluationId: Math.floor(getUser === null || getUser === void 0 ? void 0 : getUser.id),
                 },
                 data: {
                     courseByCourse: filesData.courseByCourse,
@@ -273,7 +276,7 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     transcript: filesData.transcript,
                     evaluation: {
                         connect: {
-                            id: getUser === null || getUser === void 0 ? void 0 : getUser.id,
+                            id: Math.floor(getUser === null || getUser === void 0 ? void 0 : getUser.id),
                         },
                     },
                 },
@@ -289,7 +292,7 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 transcript: filesData.transcript,
                 evaluation: {
                     connect: {
-                        id: getUser === null || getUser === void 0 ? void 0 : getUser.id,
+                        id: Math.floor(getUser === null || getUser === void 0 ? void 0 : getUser.id),
                     },
                 },
             },
@@ -310,15 +313,18 @@ const getDocumentByUserId = (req, res) => __awaiter(void 0, void 0, void 0, func
     try {
         const evaluation = yield prisma.evaluation.findUnique({
             where: {
-                userId: userId,
+                userId: Math.floor(userId),
                 documents: {
-                    paid_amount: undefined
-                }
+                    paid_amount: undefined,
+                },
             },
         });
+        if (!evaluation) {
+            throw new Error("Document");
+        }
         const documentData = yield prisma.documents.findUnique({
             where: {
-                evaluationId: evaluation === null || evaluation === void 0 ? void 0 : evaluation.id,
+                evaluationId: Math.floor(evaluation === null || evaluation === void 0 ? void 0 : evaluation.id),
             },
         });
         if (documentData) {
@@ -351,3 +357,67 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.getAllUserDetails = getAllUserDetails;
+const addTotalAmt = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const amt = req.body.totalAmt;
+    const userId = req.body.id;
+    try {
+        const evaluation = yield prisma.evaluation.findUnique({
+            where: {
+                userId: Math.floor(userId),
+                documents: {
+                    paid_amount: undefined,
+                },
+            },
+        });
+        yield prisma.evaluation.update({
+            where: {
+                id: evaluation === null || evaluation === void 0 ? void 0 : evaluation.id,
+            },
+            data: {
+                documents: {
+                    update: {
+                        amount_to_pay: amt.toString(),
+                    },
+                },
+            },
+        });
+        res.json({ message: "Updated evaluation" });
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+exports.addTotalAmt = addTotalAmt;
+const compeltePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const userId = req.body.id;
+    try {
+        const evaluation = yield prisma.evaluation.findUnique({
+            where: {
+                userId: Math.floor(userId),
+                documents: {
+                    paid_amount: undefined,
+                },
+            },
+            include: {
+                documents: true,
+            },
+        });
+        if (evaluation) {
+            const response = yield prisma.documents.update({
+                where: {
+                    id: evaluation === null || evaluation === void 0 ? void 0 : evaluation.id,
+                },
+                data: {
+                    paid_amount: (_b = (_a = evaluation.documents) === null || _a === void 0 ? void 0 : _a.amount_to_pay) === null || _b === void 0 ? void 0 : _b.toString()
+                }
+            });
+            console.log(response);
+        }
+        res.json({ message: "Updated evaluation" });
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+exports.compeltePayment = compeltePayment;

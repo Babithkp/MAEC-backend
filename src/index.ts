@@ -5,6 +5,8 @@ import { maecFileUpload } from "./controller/fileUploadController";
 import {
   addDocuments,
   addEvalutions,
+  addTotalAmt,
+  compeltePayment,
   createUser,
   getAllUserDetails,
   getDocumentByUserId,
@@ -18,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 import dotenv from "dotenv";
-import { makePayment } from "./controller/paymentController";
+import { capturePaypalPayment, makePayment, makePaymentPaypal } from "./controller/paymentController";
 dotenv.config();
 
 const storage = multer.memoryStorage();
@@ -45,6 +47,14 @@ app.post("/api/getDocumentByUserId", getDocumentByUserId);
 app.get("/api/getAllUserDetails", getAllUserDetails);
 
 app.post("/api/makePayment",makePayment)
+
+app.post("/api/makePaymentPaypal",makePaymentPaypal)
+
+app.post("/api/capturePaypalPayment",capturePaypalPayment)
+
+app.post("/api/addTotalAmt",addTotalAmt)
+
+app.post("/api/compeltePayment",compeltePayment)
 
 app.get("/", (req, res) => {
   res.json({ message: "Server started" });

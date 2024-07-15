@@ -9,7 +9,6 @@ export const createUser = async (req: Request, res: Response) => {
   if (userData.email === "admin@gmail.com")
     return res.json({ error: "Invalid User data provided" });
 
-  
   try {
     const isUserExist = await prisma.user.findUnique({
       where: {
@@ -68,14 +67,14 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const isExist = await prisma.profile.findUnique({
       where: {
-        userId: userData.userId,
+        userId: Math.floor(userData.userId),
       },
     });
 
     if (isExist) {
       await prisma.profile.update({
         where: {
-          userId: userData.userId,
+          userId: Math.floor(userData.userId),
         },
         data: {
           first_name: userData.first_name,
@@ -93,7 +92,7 @@ export const updateProfile = async (req: Request, res: Response) => {
           phone_number: userData.phone_number,
           user: {
             connect: {
-              id: userData.userId,
+              id: Math.floor(userData.userId),
             },
           },
         },
@@ -118,7 +117,7 @@ export const updateProfile = async (req: Request, res: Response) => {
         phone_number: userData.phone_number,
         user: {
           connect: {
-            id: userData.userId,
+            id: Math.floor(userData.userId),
           },
         },
       },
@@ -135,7 +134,7 @@ export const getUserProfileById = async (req: Request, res: Response) => {
   try {
     const userProfile = await prisma.profile.findUnique({
       where: {
-        userId: userData,
+        userId: Math.floor(userData),
       },
     });
     if (userProfile) {
@@ -155,16 +154,16 @@ export const addEvalutions = async (req: Request, res: Response) => {
   try {
     const isExist = await prisma.evaluation.findUnique({
       where: {
-        userId: userData.userId
+        userId: Math.floor(userData.userId),
       },
     });
     if (isExist) {
       await prisma.evaluation.update({
         where: {
-          userId: userData.userId,
-          documents:{
-            paid_amount: undefined
-          }
+          userId: Math.floor(userData.userId),
+          documents: {
+            paid_amount: undefined,
+          },
         },
         data: {
           courseByCourse: userData.courseByCourse,
@@ -173,7 +172,7 @@ export const addEvalutions = async (req: Request, res: Response) => {
           language: userData.language,
           user: {
             connect: {
-              id: userData.userId,
+              id: Math.floor(userData.userId),
             },
           },
         },
@@ -189,7 +188,7 @@ export const addEvalutions = async (req: Request, res: Response) => {
         language: userData.language,
         user: {
           connect: {
-            id: userData.userId,
+            id: Math.floor(userData.userId),
           },
         },
       },
@@ -208,11 +207,11 @@ export const getUserEvalutionById = async (req: Request, res: Response) => {
   try {
     const evaluationData = await prisma.evaluation.findUnique({
       where: {
-        userId: userId,
-        documents:{
-          paid_amount: undefined
-        }
-      }
+        userId: Math.floor(userId),
+        documents: {
+          paid_amount: undefined,
+        },
+      },
     });
     if (evaluationData) {
       return res.json({ data: evaluationData });
@@ -230,22 +229,24 @@ export const addDocuments = async (req: Request, res: Response) => {
   try {
     const getUser = await prisma.evaluation.findUnique({
       where: {
-        userId: filesData.userId,
-        documents:{
-          paid_amount: undefined
-        }
+        userId: Math.floor(filesData.userId),
+        documents: {
+          paid_amount: undefined,
+        },
       },
     });
-
+    if (!getUser) {
+      throw new Error("user not found");
+    }
     const isExist = await prisma.documents.findUnique({
       where: {
-        evaluationId: getUser?.id,
+        evaluationId: Math.floor(getUser.id),
       },
     });
     if (isExist) {
       const uploadFiles = await prisma.documents.update({
         where: {
-          evaluationId: getUser?.id,
+          evaluationId: Math.floor(getUser?.id),
         },
         data: {
           courseByCourse: filesData.courseByCourse,
@@ -253,7 +254,7 @@ export const addDocuments = async (req: Request, res: Response) => {
           transcript: filesData.transcript,
           evaluation: {
             connect: {
-              id: getUser?.id,
+              id: Math.floor(getUser?.id),
             },
           },
         },
@@ -270,7 +271,7 @@ export const addDocuments = async (req: Request, res: Response) => {
         transcript: filesData.transcript,
         evaluation: {
           connect: {
-            id: getUser?.id,
+            id: Math.floor(getUser?.id),
           },
         },
       },
@@ -290,15 +291,18 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
   try {
     const evaluation = await prisma.evaluation.findUnique({
       where: {
-        userId: userId,
-        documents:{
-          paid_amount: undefined
-        }
+        userId: Math.floor(userId),
+        documents: {
+          paid_amount: undefined,
+        },
       },
     });
+    if (!evaluation) {
+      throw new Error("Document");
+    }
     const documentData = await prisma.documents.findUnique({
       where: {
-        evaluationId: evaluation?.id,
+        evaluationId: Math.floor(evaluation?.id),
       },
     });
     if (documentData) {
@@ -324,6 +328,74 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
     if (userData) {
       res.json({ data: userData });
     }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const addTotalAmt = async (req: Request, res: Response) => {
+  const amt = req.body.totalAmt;
+  const userId = req.body.id;
+
+  try {
+    const evaluation = await prisma.evaluation.findUnique({
+      where: {
+        userId: Math.floor(userId),
+        documents: {
+          paid_amount: undefined,
+        },
+      },
+    });
+
+    await prisma.evaluation.update({
+      where: {
+        id: evaluation?.id,
+      },
+      data: {
+        documents: {
+          update: {
+            amount_to_pay: amt.toString(),
+          },
+        },
+      },
+    });
+    res.json({ message: "Updated evaluation" });
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const compeltePayment = async (req: Request, res: Response) => {
+  const userId = req.body.id;
+
+  try {
+    const evaluation = await prisma.evaluation.findUnique({
+      where: {
+        userId: Math.floor(userId),
+        documents: {
+          paid_amount: undefined,
+        },
+      },
+      include: {
+        documents: true,
+      },
+    });
+
+    if (evaluation) {
+      
+      
+      const response = await prisma.documents.update({
+        where: {
+          id: evaluation?.id,
+        },
+        data:{
+          paid_amount: evaluation.documents?.amount_to_pay?.toString()
+        }
+        
+      });
+      console.log(response);
+    }
+
+    res.json({ message: "Updated evaluation" });
   } catch (err) {
     console.log(err);
   }
