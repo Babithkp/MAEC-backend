@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 import dotenv from "dotenv";
+import { makePayment } from "./controller/paymentController";
 dotenv.config();
 
 const storage = multer.memoryStorage();
@@ -42,6 +43,8 @@ app.post("/api/addDocuments", addDocuments);
 app.post("/api/getDocumentByUserId", getDocumentByUserId);
 
 app.get("/api/getAllUserDetails", getAllUserDetails);
+
+app.post("/api/makePayment",makePayment)
 
 app.get("/", (req, res) => {
   res.json({ message: "Server started" });

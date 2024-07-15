@@ -13,6 +13,7 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)());
 const dotenv_1 = __importDefault(require("dotenv"));
+const paymentController_1 = require("./controller/paymentController");
 dotenv_1.default.config();
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
@@ -26,6 +27,7 @@ app.post("/api/getUserEvalutionById", crudController_1.getUserEvalutionById);
 app.post("/api/addDocuments", crudController_1.addDocuments);
 app.post("/api/getDocumentByUserId", crudController_1.getDocumentByUserId);
 app.get("/api/getAllUserDetails", crudController_1.getAllUserDetails);
+app.post("/api/makePayment", paymentController_1.makePayment);
 app.get("/", (req, res) => {
     res.json({ message: "Server started" });
 });

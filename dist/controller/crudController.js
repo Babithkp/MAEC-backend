@@ -174,13 +174,16 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const isExist = yield prisma.evaluation.findUnique({
             where: {
-                userId: userData.userId,
+                userId: userData.userId
             },
         });
         if (isExist) {
             yield prisma.evaluation.update({
                 where: {
                     userId: userData.userId,
+                    documents: {
+                        paid_amount: undefined
+                    }
                 },
                 data: {
                     courseByCourse: userData.courseByCourse,
@@ -223,14 +226,18 @@ const getUserEvalutionById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     if (!userId)
         return res.json({ error: "Invalid User data provided" });
     try {
-        const evaluationData = yield prisma.evaluation.findFirst({
+        const evaluationData = yield prisma.evaluation.findUnique({
             where: {
                 userId: userId,
-            },
+                documents: {
+                    paid_amount: undefined
+                }
+            }
         });
         if (evaluationData) {
             return res.json({ data: evaluationData });
         }
+        return res.json({ error: "failed to get data" });
     }
     catch (err) {
         console.log(err);
@@ -245,6 +252,9 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const getUser = yield prisma.evaluation.findUnique({
             where: {
                 userId: filesData.userId,
+                documents: {
+                    paid_amount: undefined
+                }
             },
         });
         const isExist = yield prisma.documents.findUnique({
@@ -301,6 +311,9 @@ const getDocumentByUserId = (req, res) => __awaiter(void 0, void 0, void 0, func
         const evaluation = yield prisma.evaluation.findUnique({
             where: {
                 userId: userId,
+                documents: {
+                    paid_amount: undefined
+                }
             },
         });
         const documentData = yield prisma.documents.findUnique({

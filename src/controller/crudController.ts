@@ -154,13 +154,16 @@ export const addEvalutions = async (req: Request, res: Response) => {
   try {
     const isExist = await prisma.evaluation.findUnique({
       where: {
-        userId: userData.userId,
+        userId: userData.userId
       },
     });
     if (isExist) {
       await prisma.evaluation.update({
         where: {
           userId: userData.userId,
+          documents:{
+            paid_amount: undefined
+          }
         },
         data: {
           courseByCourse: userData.courseByCourse,
@@ -202,14 +205,18 @@ export const getUserEvalutionById = async (req: Request, res: Response) => {
   const userId = await req.body.userId;
   if (!userId) return res.json({ error: "Invalid User data provided" });
   try {
-    const evaluationData = await prisma.evaluation.findFirst({
+    const evaluationData = await prisma.evaluation.findUnique({
       where: {
         userId: userId,
-      },
+        documents:{
+          paid_amount: undefined
+        }
+      }
     });
     if (evaluationData) {
       return res.json({ data: evaluationData });
     }
+    return res.json({ error: "failed to get data" });
   } catch (err) {
     console.log(err);
   }
@@ -223,6 +230,9 @@ export const addDocuments = async (req: Request, res: Response) => {
     const getUser = await prisma.evaluation.findUnique({
       where: {
         userId: filesData.userId,
+        documents:{
+          paid_amount: undefined
+        }
       },
     });
 
@@ -280,6 +290,9 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
     const evaluation = await prisma.evaluation.findUnique({
       where: {
         userId: userId,
+        documents:{
+          paid_amount: undefined
+        }
       },
     });
     const documentData = await prisma.documents.findUnique({
@@ -307,7 +320,6 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
         },
       },
     });
-
     if (userData) {
       res.json({ data: userData });
     }
