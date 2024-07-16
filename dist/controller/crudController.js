@@ -89,7 +89,7 @@ const getUserEmailById = (req, res) => __awaiter(void 0, void 0, void 0, functio
             },
         });
         if (response) {
-            res.json({ data: response.email_address });
+            res.json({ data: response });
         }
     }
     catch (err) {
@@ -208,8 +208,6 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 documents: true,
             },
         });
-        console.log(evalutionres);
-        console.log(evalutionresNew);
         if (evalutionres) {
             const update = yield prisma.evaluation.update({
                 where: {
@@ -285,7 +283,6 @@ const getUserEvalutionById = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 documents: true,
             },
         });
-        console.log(evaluationData);
         if (evaluationData) {
             return res.json({ data: evaluationData });
         }

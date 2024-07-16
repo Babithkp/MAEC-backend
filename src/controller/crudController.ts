@@ -29,6 +29,8 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
+
+
 export const userLogin = async (req: Request, res: Response) => {
   const loginDetails = req.body;
   if (!loginDetails) return res.json({ error: "Login data is required" });
@@ -72,7 +74,7 @@ export const getUserEmailById = async (req: Request, res: Response) => {
       },
     });
     if (response) {
-      res.json({ data: response.email_address });
+      res.json({ data: response });
     }
   } catch (err) {
     console.log(err);
@@ -188,8 +190,6 @@ export const addEvalutions = async (req: Request, res: Response) => {
         documents: true,
       },
     });
-    console.log(evalutionres);
-    console.log(evalutionresNew);
 
     if (evalutionres) {
       const update = await prisma.evaluation.update({
@@ -265,7 +265,6 @@ export const getUserEvalutionById = async (req: Request, res: Response) => {
         documents: true,
       },
     });
-    console.log(evaluationData);
 
     if (evaluationData) {
       return res.json({ data: evaluationData });
