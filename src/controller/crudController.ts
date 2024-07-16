@@ -1,4 +1,5 @@
-import { PrismaClient, Prisma } from "@prisma/client";import { Request, Response } from "express";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
@@ -54,6 +55,24 @@ export const userLogin = async (req: Request, res: Response) => {
         usermail: response?.email_address,
         token: token,
       });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getUserEmailById = async (req: Request, res: Response) => {
+  const userId = req.body.userId;
+  if (!userId) return res.json({ error: "Invalid User data provided" });
+
+  try {
+    const response = await prisma.user.findUnique({
+      where: {
+        id: Math.floor(userId),
+      },
+    });
+    if (response) {
+      res.json({ data: response.email_address });
     }
   } catch (err) {
     console.log(err);
@@ -152,32 +171,57 @@ export const addEvalutions = async (req: Request, res: Response) => {
   if (!userData) return res.json({ error: "Invalid User data provided" });
 
   try {
-    const isExist = await prisma.evaluation.findUnique({
+    const evalutionresNew = await prisma.evaluation.findFirst({
       where: {
         userId: Math.floor(userData.userId),
+        documents: null,
       },
     });
-    if (isExist) {
-      await prisma.evaluation.update({
+    const evalutionres = await prisma.evaluation.findFirst({
+      where: {
+        userId: Math.floor(userData.userId),
+        documents: {
+          paid_amount: 0,
+        },
+      },
+      include: {
+        documents: true,
+      },
+    });
+    console.log(evalutionres);
+    console.log(evalutionresNew);
+
+    if (evalutionres) {
+      const update = await prisma.evaluation.update({
         where: {
-          userId: Math.floor(userData.userId),
-          documents: {
-            paid_amount: undefined,
-          },
+          id: Math.floor(evalutionres.id),
         },
         data: {
           courseByCourse: userData.courseByCourse,
           certificate: userData.certificate,
           transcript: userData.transcript,
           language: userData.language,
-          user: {
-            connect: {
-              id: Math.floor(userData.userId),
-            },
-          },
         },
       });
-      return res.json({ message: "Evaluation updated successfully" });
+      if (update) {
+        return res.json({ message: "Evaluation updated successfully" });
+      }
+    }
+    if (evalutionresNew) {
+      const update = await prisma.evaluation.update({
+        where: {
+          id: Math.floor(evalutionresNew.id),
+        },
+        data: {
+          courseByCourse: userData.courseByCourse,
+          certificate: userData.certificate,
+          transcript: userData.transcript,
+          language: userData.language,
+        },
+      });
+      if (update) {
+        return res.json({ message: "Evaluation updated successfully" });
+      }
     }
 
     const evalutionCreate = await prisma.evaluation.create({
@@ -186,11 +230,7 @@ export const addEvalutions = async (req: Request, res: Response) => {
         certificate: userData.certificate,
         transcript: userData.transcript,
         language: userData.language,
-        user: {
-          connect: {
-            id: Math.floor(userData.userId),
-          },
-        },
+        userId: Math.floor(userData.userId),
       },
     });
     if (evalutionCreate) {
@@ -205,16 +245,33 @@ export const getUserEvalutionById = async (req: Request, res: Response) => {
   const userId = await req.body.userId;
   if (!userId) return res.json({ error: "Invalid User data provided" });
   try {
-    const evaluationData = await prisma.evaluation.findUnique({
+    const evaluationDataNew = await prisma.evaluation.findFirst({
+      where: {
+        userId: Math.floor(userId),
+        documents: null,
+      },
+      include: {
+        documents: true,
+      },
+    });
+    const evaluationData = await prisma.evaluation.findFirst({
       where: {
         userId: Math.floor(userId),
         documents: {
-          paid_amount: undefined,
+          paid_amount: 0,
         },
       },
+      include: {
+        documents: true,
+      },
     });
+    console.log(evaluationData);
+
     if (evaluationData) {
       return res.json({ data: evaluationData });
+    }
+    if (evaluationDataNew) {
+      return res.json({ data: evaluationDataNew });
     }
     return res.json({ error: "failed to get data" });
   } catch (err) {
@@ -227,57 +284,105 @@ export const addDocuments = async (req: Request, res: Response) => {
   if (!filesData) return res.json({ error: "Invalid User data provided" });
 
   try {
-    const getUser = await prisma.evaluation.findUnique({
+    const getUsernew = await prisma.evaluation.findFirst({
+      where: {
+        userId: Math.floor(filesData.userId),
+        documents: null,
+      },
+    });
+    const getUser = await prisma.evaluation.findFirst({
       where: {
         userId: Math.floor(filesData.userId),
         documents: {
-          paid_amount: undefined,
+          paid_amount: 0,
         },
       },
     });
-    if (!getUser) {
-      throw new Error("user not found");
-    }
-    const isExist = await prisma.documents.findUnique({
-      where: {
-        evaluationId: Math.floor(getUser.id),
-      },
-    });
-    if (isExist) {
-      const uploadFiles = await prisma.documents.update({
+    if (getUsernew) {
+      const isExist = await prisma.documents.findUnique({
         where: {
-          evaluationId: Math.floor(getUser?.id),
-        },
-        data: {
-          courseByCourse: filesData.courseByCourse,
-          certificate: filesData.certificate,
-          transcript: filesData.transcript,
-          evaluation: {
-            connect: {
-              id: Math.floor(getUser?.id),
-            },
-          },
+          evaluationId: Math.floor(getUsernew.id),
         },
       });
-      if (uploadFiles) {
-        return res.json({ message: "Upload files successfully" });
+      if (isExist) {
+        const uploadFiles = await prisma.documents.update({
+          where: {
+            evaluationId: Math.floor(getUsernew?.id),
+          },
+          data: {
+            courseByCourse: filesData.courseByCourse,
+            certificate: filesData.certificate,
+            transcript: filesData.transcript,
+            evaluation: {
+              connect: {
+                id: Math.floor(getUsernew?.id),
+              },
+            },
+          },
+        });
+        if (uploadFiles) {
+          return res.json({ message: "Upload files successfully" });
+        }
+      } else {
+        const uploadFiles = await prisma.documents.create({
+          data: {
+            courseByCourse: filesData.courseByCourse,
+            certificate: filesData.certificate,
+            transcript: filesData.transcript,
+            evaluation: {
+              connect: {
+                id: Math.floor(getUsernew?.id),
+              },
+            },
+          },
+        });
+        if (uploadFiles) {
+          return res.json({ message: "Upload files successfully" });
+        }
       }
     }
-
-    const uploadFiles = await prisma.documents.create({
-      data: {
-        courseByCourse: filesData.courseByCourse,
-        certificate: filesData.certificate,
-        transcript: filesData.transcript,
-        evaluation: {
-          connect: {
-            id: Math.floor(getUser?.id),
-          },
+    if (getUser) {
+      const isExist = await prisma.documents.findUnique({
+        where: {
+          evaluationId: Math.floor(getUser.id),
         },
-      },
-    });
-    if (uploadFiles) {
-      return res.json({ message: "Upload files successfully" });
+      });
+      if (isExist) {
+        const uploadFiles = await prisma.documents.update({
+          where: {
+            evaluationId: Math.floor(getUser?.id),
+          },
+          data: {
+            courseByCourse: filesData.courseByCourse,
+            certificate: filesData.certificate,
+            transcript: filesData.transcript,
+            evaluation: {
+              connect: {
+                id: Math.floor(getUser?.id),
+              },
+            },
+          },
+        });
+        if (uploadFiles) {
+          return res.json({ message: "Upload files successfully" });
+        }
+      } else {
+        const uploadFiles = await prisma.documents.create({
+          data: {
+            courseByCourse: filesData.courseByCourse,
+            certificate: filesData.certificate,
+            transcript: filesData.transcript,
+            evaluation: {
+              connect: {
+                id: Math.floor(getUser?.id),
+              },
+            },
+          },
+        });
+        if (uploadFiles) {
+          return res.json({ message: "Upload files successfully" });
+        }
+      }
     }
   } catch (err) {
     console.log(err);
@@ -289,11 +394,11 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
   if (!userId) return res.json({ error: "Invalid User data provided" });
 
   try {
-    const evaluation = await prisma.evaluation.findUnique({
+    const evaluation = await prisma.evaluation.findFirst({
       where: {
         userId: Math.floor(userId),
         documents: {
-          paid_amount: undefined,
+          paid_amount: 0,
         },
       },
     });
@@ -338,11 +443,11 @@ export const addTotalAmt = async (req: Request, res: Response) => {
   const userId = req.body.id;
 
   try {
-    const evaluation = await prisma.evaluation.findUnique({
+    const evaluation = await prisma.evaluation.findFirst({
       where: {
         userId: Math.floor(userId),
         documents: {
-          paid_amount: undefined,
+          paid_amount: 0,
         },
       },
     });
@@ -354,7 +459,7 @@ export const addTotalAmt = async (req: Request, res: Response) => {
       data: {
         documents: {
           update: {
-            amount_to_pay: amt.toString(),
+            amount_to_pay: amt,
           },
         },
       },
@@ -368,11 +473,11 @@ export const compeltePayment = async (req: Request, res: Response) => {
   const userId = req.body.id;
 
   try {
-    const evaluation = await prisma.evaluation.findUnique({
+    const evaluation = await prisma.evaluation.findFirst({
       where: {
         userId: Math.floor(userId),
         documents: {
-          paid_amount: undefined,
+          paid_amount: 0,
         },
       },
       include: {
@@ -381,21 +486,43 @@ export const compeltePayment = async (req: Request, res: Response) => {
     });
 
     if (evaluation) {
-      
-      
-      const response = await prisma.documents.update({
+      await prisma.documents.update({
         where: {
-          id: evaluation?.id,
+          evaluationId: evaluation?.id,
         },
-        data:{
-          paid_amount: evaluation.documents?.amount_to_pay?.toString()
-        }
-        
+        data: {
+          paid_amount: evaluation.documents?.amount_to_pay,
+        },
       });
-      console.log(response);
     }
 
     res.json({ message: "Updated evaluation" });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getUserEvaluationDetailsById = async (
+  req: Request,
+  res: Response
+) => {
+  const userId = req.body.userId;
+  if (!userId) return res.json({ error: "Invalid User data provided" });
+
+  try {
+    const response = await prisma.evaluation.findMany({
+      where: {
+        userId: Math.floor(userId),
+      },
+      include: {
+        documents: true,
+      },
+    });
+    if (response) {
+      res.json({ data: response });
+    }else{
+      res.status(401).json({ error: "network error" });
+    }
   } catch (err) {
     console.log(err);
   }

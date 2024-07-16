@@ -10,6 +10,8 @@ import {
   createUser,
   getAllUserDetails,
   getDocumentByUserId,
+  getUserEmailById,
+  getUserEvaluationDetailsById,
   getUserEvalutionById,
   getUserProfileById,
   updateProfile,
@@ -29,6 +31,8 @@ const upload = multer({ storage });
 app.post("/api/fileupload", upload.any(), maecFileUpload);
 
 app.post("/api/createUser", createUser);
+
+app.post("/api/getUserEmailById", getUserEmailById);
 
 app.post("/api/userLogin", userLogin);
 
@@ -55,6 +59,8 @@ app.post("/api/capturePaypalPayment",capturePaypalPayment)
 app.post("/api/addTotalAmt",addTotalAmt)
 
 app.post("/api/compeltePayment",compeltePayment)
+
+app.post("/api/getUserEvaluationDetailsById",getUserEvaluationDetailsById)
 
 app.get("/", (req, res) => {
   res.json({ message: "Server started" });

@@ -48,7 +48,7 @@ model Evaluation {
   transcript     Int?
   language       String?
   user           User       @relation(fields: [userId], references: [id])
-  userId         Int        @unique
+  userId         Int       
   documents      Documents?
 }
 
@@ -57,8 +57,8 @@ model Documents {
   courseByCourse String[]
   certificate    String[]
   transcript     String[]
-  paid_amount    String?
-  amount_to_pay  String?
+  paid_amount    Int?       @default(0)
+  amount_to_pay  Int?       @default(0)
   evaluation     Evaluation @relation(fields: [evaluationId], references: [id])
   evaluationId   Int        @unique
 }

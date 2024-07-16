@@ -19,6 +19,7 @@ const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
 app.post("/api/fileupload", upload.any(), fileUploadController_1.maecFileUpload);
 app.post("/api/createUser", crudController_1.createUser);
+app.post("/api/getUserEmailById", crudController_1.getUserEmailById);
 app.post("/api/userLogin", crudController_1.userLogin);
 app.post("/api/updateProfile", crudController_1.updateProfile);
 app.post("/api/getUserProfileById", crudController_1.getUserProfileById);
@@ -32,6 +33,7 @@ app.post("/api/makePaymentPaypal", paymentController_1.makePaymentPaypal);
 app.post("/api/capturePaypalPayment", paymentController_1.capturePaypalPayment);
 app.post("/api/addTotalAmt", crudController_1.addTotalAmt);
 app.post("/api/compeltePayment", crudController_1.compeltePayment);
+app.post("/api/getUserEvaluationDetailsById", crudController_1.getUserEvaluationDetailsById);
 app.get("/", (req, res) => {
     res.json({ message: "Server started" });
 });
