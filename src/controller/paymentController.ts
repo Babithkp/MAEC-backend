@@ -35,6 +35,11 @@ export const makePayment = async (req: Request, res: Response) => {
     mode: "payment",
     success_url: "https://maec-kappa.vercel.app/payment/success",
     cancel_url: "https://maec-kappa.vercel.app/payment/failed",
+    custom_text: {
+      submit: {
+        message: 'Pay for maec.us',
+      },
+    }
   });
   if (session) {
     res.json(session);

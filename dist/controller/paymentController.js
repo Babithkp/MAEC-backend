@@ -39,6 +39,11 @@ const makePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         mode: "payment",
         success_url: "https://maec-kappa.vercel.app/payment/success",
         cancel_url: "https://maec-kappa.vercel.app/payment/failed",
+        custom_text: {
+            submit: {
+                message: 'Pay for maec.us',
+            },
+        }
     });
     if (session) {
         res.json(session);
