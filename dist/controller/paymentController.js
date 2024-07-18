@@ -37,8 +37,8 @@ const makePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const session = yield stripe.checkout.sessions.create({
         line_items: lineItems,
         mode: "payment",
-        success_url: "https://maec-kappa.vercel.app/payment/success",
-        cancel_url: "https://maec-kappa.vercel.app/payment/failed",
+        success_url: "https://maec.us/payment/success",
+        cancel_url: "https://maec.us/payment/failed",
         custom_text: {
             submit: {
                 message: 'Pay for maec.us',
