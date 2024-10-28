@@ -419,7 +419,20 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
 
 export const getAllUserDetails = async (req: Request, res: Response) => {
   try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const search = req.query.search as string | undefined;
+
     const userData = await prisma.user.findMany({
+      where: search
+        ? {
+            OR: [
+              { email_address: { contains: search, mode: "insensitive" } },
+              { profile: { first_name: { contains: search, mode: "insensitive" } } },
+              { profile: { last_name: { contains: search, mode: "insensitive" } } },
+            ],
+          }
+        : undefined,
       include: {
         profile: true,
         evaluation: {
@@ -428,14 +441,17 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
           },
         },
       },
+      skip: offset,
+      take: limit,
     });
-    if (userData) {
-      res.json({ data: userData });
-    }
+
+    res.json({ data: userData });
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch user details." });
   }
 };
+
 
 export const addTotalAmt = async (req: Request, res: Response) => {
   const amt = req.body.totalAmt;

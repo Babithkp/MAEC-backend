@@ -441,7 +441,19 @@ const getDocumentByUserId = (req, res) => __awaiter(void 0, void 0, void 0, func
 exports.getDocumentByUserId = getDocumentByUserId;
 const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = parseInt(req.query.offset) || 0;
+        const search = req.query.search;
         const userData = yield prisma.user.findMany({
+            where: search
+                ? {
+                    OR: [
+                        { email_address: { contains: search, mode: "insensitive" } },
+                        { profile: { first_name: { contains: search, mode: "insensitive" } } },
+                        { profile: { last_name: { contains: search, mode: "insensitive" } } },
+                    ],
+                }
+                : undefined,
             include: {
                 profile: true,
                 evaluation: {
@@ -450,13 +462,14 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
                     },
                 },
             },
+            skip: offset,
+            take: limit,
         });
-        if (userData) {
-            res.json({ data: userData });
-        }
+        res.json({ data: userData });
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch user details." });
     }
 });
 exports.getAllUserDetails = getAllUserDetails;
