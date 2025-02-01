@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
+
 export const createUser = async (req: Request, res: Response) => {
   const userData = req.body;
   if (!userData) return res.json({ error: "Invalid User data provided" });
