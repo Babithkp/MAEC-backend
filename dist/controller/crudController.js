@@ -449,8 +449,16 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 ? {
                     OR: [
                         { email_address: { contains: search, mode: "insensitive" } },
-                        { profile: { first_name: { contains: search, mode: "insensitive" } } },
-                        { profile: { last_name: { contains: search, mode: "insensitive" } } },
+                        {
+                            profile: {
+                                first_name: { contains: search, mode: "insensitive" },
+                            },
+                        },
+                        {
+                            profile: {
+                                last_name: { contains: search, mode: "insensitive" },
+                            },
+                        },
                     ],
                 }
                 : undefined,
@@ -464,6 +472,9 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
             },
             skip: offset,
             take: limit,
+            orderBy: {
+                id: "desc",
+            },
         });
         res.json({ data: userData });
     }

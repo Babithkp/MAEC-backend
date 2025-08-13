@@ -449,7 +449,7 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
       skip: offset,
       take: limit,
       orderBy: {
-        id: "asc",
+        id: "desc",
       },
     });
 
