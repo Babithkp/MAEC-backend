@@ -444,6 +444,9 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
       },
       skip: offset,
       take: limit,
+      orderBy:{
+        id: 'desc'
+      }
     });
 
     res.json({ data: userData });
