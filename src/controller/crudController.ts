@@ -1,9 +1,7 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-import { Request, Response } from "express";
+import { PrismaClient, Prisma } from "@prisma/client";import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
-
 
 export const createUser = async (req: Request, res: Response) => {
   const userData = req.body;
@@ -29,8 +27,6 @@ export const createUser = async (req: Request, res: Response) => {
     console.log(err);
   }
 };
-
-
 
 export const userLogin = async (req: Request, res: Response) => {
   const loginDetails = req.body;
@@ -429,8 +425,16 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
         ? {
             OR: [
               { email_address: { contains: search, mode: "insensitive" } },
-              { profile: { first_name: { contains: search, mode: "insensitive" } } },
-              { profile: { last_name: { contains: search, mode: "insensitive" } } },
+              {
+                profile: {
+                  first_name: { contains: search, mode: "insensitive" },
+                },
+              },
+              {
+                profile: {
+                  last_name: { contains: search, mode: "insensitive" },
+                },
+              },
             ],
           }
         : undefined,
@@ -444,9 +448,9 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
       },
       skip: offset,
       take: limit,
-      orderBy:{
-        id: 'desc'
-      }
+      orderBy: {
+        id: "asc",
+      },
     });
 
     res.json({ data: userData });
@@ -455,7 +459,6 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch user details." });
   }
 };
-
 
 export const addTotalAmt = async (req: Request, res: Response) => {
   const amt = req.body.totalAmt;
@@ -539,7 +542,7 @@ export const getUserEvaluationDetailsById = async (
     });
     if (response) {
       res.json({ data: response });
-    }else{
+    } else {
       res.status(401).json({ error: "network error" });
     }
   } catch (err) {
