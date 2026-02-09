@@ -18,7 +18,6 @@ model User {
 
 model Profile {
   id             String  @id @default(auto()) @map("_id") @db.ObjectId
-
   first_name     String
   middle_name    String?
   last_name      String
@@ -32,19 +31,16 @@ model Profile {
   postal_code    String
   country        String
   phone_number   String
-
   userId         String  @unique @db.ObjectId
   user           User    @relation(fields: [userId], references: [id])
 }
 
 model Evaluation {
   id             String     @id @default(auto()) @map("_id") @db.ObjectId
-
   courseByCourse Int?
   certificate    Int?
   transcript     Int?
   language       String?
-
   userId         String     @db.ObjectId
   user           User       @relation(fields: [userId], references: [id])
 
@@ -53,14 +49,11 @@ model Evaluation {
 
 model Documents {
   id             String     @id @default(auto()) @map("_id") @db.ObjectId
-
   courseByCourse String[]
   certificate    String[]
   transcript     String[]
-
   evaluationId   String     @unique @db.ObjectId
   evaluation     Evaluation @relation(fields: [evaluationId], references: [id])
-
   paid_amount    Int?       @default(0)
   amount_to_pay  Int?       @default(0)
 }

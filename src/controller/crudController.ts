@@ -84,43 +84,27 @@ export const updateProfile = async (req: Request, res: Response) => {
   if (!userData) return res.json({ error: "Invalid User data provided" });
 
   try {
-    const isExist = await prisma.profile.findUnique({
+
+    const profile = await prisma.profile.upsert({
       where: {
         userId: userData.userId,
       },
-    });
-
-    if (isExist) {
-      await prisma.profile.update({
-        where: {
-          id: userData.userId,
-        },
-        data: {
-          first_name: userData.first_name,
-          middle_name: userData.middle_name,
-          last_name: userData.last_name,
-          birth_day: userData.birth_day,
-          birth_month: userData.birth_month,
-          birth_year: userData.birth_year,
-          gender: userData.gender,
-          street_address: userData.street_address,
-          city: userData.city,
-          state: userData.state,
-          postal_code: userData.postal_code,
-          country: userData.country,
-          phone_number: userData.phone_number,
-          user: {
-            connect: {
-              id: userData.userId,
-            },
-          },
-        },
-      });
-      return res.json({ message: "User profile updadted " });
-    }
-
-    const profile = await prisma.profile.create({
-      data: {
+      update: {
+        first_name: userData.first_name,
+        middle_name: userData.middle_name,
+        last_name: userData.last_name,
+        birth_day: userData.birth_day,
+        birth_month: userData.birth_month,
+        birth_year: userData.birth_year,
+        gender: userData.gender,
+        street_address: userData.street_address,
+        city: userData.city,
+        state: userData.state,
+        postal_code: userData.postal_code,
+        country: userData.country,
+        phone_number: userData.phone_number,
+      },
+      create: {
         first_name: userData.first_name,
         middle_name: userData.middle_name,
         last_name: userData.last_name,
@@ -135,12 +119,11 @@ export const updateProfile = async (req: Request, res: Response) => {
         country: userData.country,
         phone_number: userData.phone_number,
         user: {
-          connect: {
-            id: userData.userId,
-          },
+          connect: { id: userData.userId },
         },
       },
     });
+
     return res.json({ message: "User profile updadted", profile });
   } catch (err) {
     console.log(err);
@@ -424,20 +407,20 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
     const userData = await prisma.user.findMany({
       where: search
         ? {
-            OR: [
-              { email_address: { contains: search, mode: "insensitive" } },
-              {
-                profile: {
-                  first_name: { contains: search, mode: "insensitive" },
-                },
+          OR: [
+            { email_address: { contains: search, mode: "insensitive" } },
+            {
+              profile: {
+                first_name: { contains: search, mode: "insensitive" },
               },
-              {
-                profile: {
-                  last_name: { contains: search, mode: "insensitive" },
-                },
+            },
+            {
+              profile: {
+                last_name: { contains: search, mode: "insensitive" },
               },
-            ],
-          }
+            },
+          ],
+        }
         : undefined,
       include: {
         profile: true,
