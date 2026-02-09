@@ -3,21 +3,22 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            Int          @id @default(autoincrement())
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   email_address String       @unique
   password      String
+
   evaluation    Evaluation[]
   profile       Profile?
 }
 
 model Profile {
-  id             Int     @id @default(autoincrement())
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+
   first_name     String
   middle_name    String?
   last_name      String
@@ -31,28 +32,35 @@ model Profile {
   postal_code    String
   country        String
   phone_number   String
-  userId         Int     @unique
+
+  userId         String  @unique @db.ObjectId
   user           User    @relation(fields: [userId], references: [id])
 }
 
 model Evaluation {
-  id             Int        @id @default(autoincrement())
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+
   courseByCourse Int?
   certificate    Int?
   transcript     Int?
   language       String?
-  userId         Int
-  documents      Documents?
+
+  userId         String     @db.ObjectId
   user           User       @relation(fields: [userId], references: [id])
+
+  documents      Documents?
 }
 
 model Documents {
-  id             Int        @id @default(autoincrement())
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+
   courseByCourse String[]
   certificate    String[]
   transcript     String[]
-  evaluationId   Int        @unique
+
+  evaluationId   String     @unique @db.ObjectId
+  evaluation     Evaluation @relation(fields: [evaluationId], references: [id])
+
   paid_amount    Int?       @default(0)
   amount_to_pay  Int?       @default(0)
-  evaluation     Evaluation @relation(fields: [evaluationId], references: [id])
 }
