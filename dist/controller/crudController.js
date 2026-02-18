@@ -40,6 +40,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.createUser = createUser;
@@ -75,6 +76,7 @@ const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.userLogin = userLogin;
@@ -94,6 +96,7 @@ const getUserEmailById = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.getUserEmailById = getUserEmailById;
@@ -144,6 +147,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.updateProfile = updateProfile;
@@ -166,6 +170,7 @@ const getUserProfileById = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.getUserProfileById = getUserProfileById;
@@ -238,6 +243,7 @@ const addEvalutions = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.addEvalutions = addEvalutions;
@@ -276,6 +282,7 @@ const getUserEvalutionById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.getUserEvalutionById = getUserEvalutionById;
@@ -389,6 +396,7 @@ const addDocuments = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.addDocuments = addDocuments;
@@ -418,7 +426,8 @@ const getDocumentByUserId = (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
     catch (err) {
-        console.log();
+        console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.getDocumentByUserId = getDocumentByUserId;
@@ -495,6 +504,7 @@ const addTotalAmt = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.addTotalAmt = addTotalAmt;
@@ -527,6 +537,7 @@ const compeltePayment = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.compeltePayment = compeltePayment;
@@ -552,6 +563,7 @@ const getUserEvaluationDetailsById = (req, res) => __awaiter(void 0, void 0, voi
     }
     catch (err) {
         console.log(err);
+        res.json({ error: "Invalid User data provided" });
     }
 });
 exports.getUserEvaluationDetailsById = getUserEvaluationDetailsById;

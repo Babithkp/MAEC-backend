@@ -26,6 +26,7 @@ export const createUser = async (req: Request, res: Response) => {
     res.json({ message: "User account has created" });
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -58,6 +59,7 @@ export const userLogin = async (req: Request, res: Response) => {
     }
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -76,6 +78,7 @@ export const getUserEmailById = async (req: Request, res: Response) => {
     }
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -127,6 +130,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     return res.json({ message: "User profile updadted", profile });
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -146,6 +150,7 @@ export const getUserProfileById = async (req: Request, res: Response) => {
     }
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -219,6 +224,7 @@ export const addEvalutions = async (req: Request, res: Response) => {
     }
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -256,6 +262,7 @@ export const getUserEvalutionById = async (req: Request, res: Response) => {
     return res.json({ error: "failed to get data" });
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -366,6 +373,7 @@ export const addDocuments = async (req: Request, res: Response) => {
     }
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -394,7 +402,8 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
       return res.json({ data: documentData });
     }
   } catch (err) {
-    console.log();
+    console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -473,6 +482,7 @@ export const addTotalAmt = async (req: Request, res: Response) => {
     res.json({ message: "Updated evaluation" });
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 export const compeltePayment = async (req: Request, res: Response) => {
@@ -505,6 +515,7 @@ export const compeltePayment = async (req: Request, res: Response) => {
     res.json({ message: "Updated evaluation" });
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
 
@@ -531,5 +542,6 @@ export const getUserEvaluationDetailsById = async (
     }
   } catch (err) {
     console.log(err);
+    res.json({ error: "Invalid User data provided" });
   }
 };
