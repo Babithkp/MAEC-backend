@@ -465,7 +465,7 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
             skip: offset,
             take: limit,
             orderBy: {
-                id: "desc",
+                createdAt: "desc",
             },
         });
         res.json({ data: userData });
