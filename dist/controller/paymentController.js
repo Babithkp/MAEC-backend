@@ -121,8 +121,8 @@ const makePaymentPaypal = (req, res) => __awaiter(void 0, void 0, void 0, functi
                     },
                 ],
                 application_context: {
-                    return_url: "http://localhost:5173/payment/success",
-                    cancel_url: "http://localhost:5173/payment/failed",
+                    return_url: "https://www.internationaltranslationservice.de/payment/success",
+                    cancel_url: "https://www.internationaltranslationservice.de/payment/failed",
                     shipping_preference: "NO_SHIPPING",
                     user_action: "PAY_NOW",
                     brand_name: "ITS.us",
