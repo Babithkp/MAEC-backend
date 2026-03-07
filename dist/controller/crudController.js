@@ -408,13 +408,10 @@ const getDocumentByUserId = (req, res) => __awaiter(void 0, void 0, void 0, func
         const evaluation = yield prisma.evaluation.findFirst({
             where: {
                 userId: userId,
-                documents: {
-                    paid_amount: 0,
-                },
             },
         });
         if (!evaluation) {
-            throw new Error("Document");
+            return res.status(201).json({ message: "No Evaluation found" });
         }
         const documentData = yield prisma.documents.findUnique({
             where: {
@@ -510,11 +507,11 @@ const addTotalAmt = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.addTotalAmt = addTotalAmt;
 const compeltePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const userId = req.body.id;
+    const { id, order_id } = req.body;
     try {
         const evaluation = yield prisma.evaluation.findFirst({
             where: {
-                userId: userId,
+                userId: id,
                 documents: {
                     paid_amount: 0,
                 },
@@ -530,6 +527,7 @@ const compeltePayment = (req, res) => __awaiter(void 0, void 0, void 0, function
                 },
                 data: {
                     paid_amount: (_a = evaluation.documents) === null || _a === void 0 ? void 0 : _a.amount_to_pay,
+                    order_id
                 },
             });
         }

@@ -56,4 +56,5 @@ model Documents {
   evaluation     Evaluation @relation(fields: [evaluationId], references: [id])
   paid_amount    Int?       @default(0)
   amount_to_pay  Int?       @default(0)
+  order_id       String?
 }

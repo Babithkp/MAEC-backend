@@ -1,4 +1,4 @@
-import { Request, Response } from "express";import Stripe from "stripe";
+import { Request, Response } from "express"; import Stripe from "stripe";
 import axios from "axios";
 
 
@@ -51,83 +51,107 @@ export const makePayment = async (req: Request, res: Response) => {
 async function generateAccessToken() {
   const PAYPAL_BASE_URL = process.env.PAYPAL_BASE_URL as string;
   const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID as string;
-  const PAYPAL_SECRET = process.env.PAYPAL_SECRECT as string;
-
+  const PAYPAL_SECRET = process.env.PAYPAL_SECRET as string;
+  
   if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET) {
     throw new Error(
       "PayPal client ID or secret is not set in the environment variables"
     );
   }
 
-  const response = await axios(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
+  const response = await axios({
+    url: PAYPAL_BASE_URL + "/v1/oauth2/token",
     method: "post",
-    data: "grant_type=client_credentials",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
     auth: {
       username: PAYPAL_CLIENT_ID,
       password: PAYPAL_SECRET,
     },
+    data: "grant_type=client_credentials",
   });
+
   return response.data.access_token;
 }
 
 export const makePaymentPaypal = async (req: Request, res: Response) => {
-  const items = req.body.data
-  const mappedItems = items.map((item:any) => ({
-    name: item.name,
-    quantity: item.quantity.toString(),
-    unit_amount: {
-      currency_code: "USD",
-      value: item.amount.toFixed(2)
-    }
-  }));
+  try {
+    const items = req.body.data;
 
-  const totalAmount = mappedItems.reduce((total:number, item:any) => {
-    const itemAmount = parseFloat(item.unit_amount.value);
-    const itemQuantity = parseInt(item.quantity, 10);
-    return total + (itemAmount * itemQuantity);
-  }, 0).toFixed(2);
-  const access_token = await generateAccessToken();
+    const mappedItems = items.map((item: any) => ({
+      name: item.name,
+      quantity: item.quantity.toString(),
+      unit_amount: {
+        currency_code: "USD",
+        value: item.amount.toFixed(2),
+      },
+    }));
 
-  const response = await axios({
-    url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + access_token,
-    },
-    data: JSON.stringify({
-      intent: "CAPTURE",
-      purchase_units: [
-        {
-          items: mappedItems,
+    const totalAmount = mappedItems
+      .reduce((total: number, item: any) => {
+        const itemAmount = parseFloat(item.unit_amount.value);
+        const itemQuantity = parseInt(item.quantity, 10);
+        return total + itemAmount * itemQuantity;
+      }, 0)
+      .toFixed(2);
 
-          amount: {
-            currency_code: "USD",
-            value: totalAmount,
-            breakdown: {
-              item_total: {
-                currency_code: "USD",
-                value: totalAmount,
+    const access_token = await generateAccessToken();
+
+    const response = await axios({
+      url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+      data: {
+        intent: "CAPTURE",
+        purchase_units: [
+          {
+            items: mappedItems,
+            amount: {
+              currency_code: "USD",
+              value: totalAmount,
+              breakdown: {
+                item_total: {
+                  currency_code: "USD",
+                  value: totalAmount,
+                },
               },
             },
           },
+        ],
+        application_context: {
+          return_url: "http://localhost:5173/payment/success",
+          cancel_url: "http://localhost:5173/payment/failed",
+          shipping_preference: "NO_SHIPPING",
+          user_action: "PAY_NOW",
+          brand_name: "ITS.us",
         },
-      ],
-
-      application_context: {
-        return_url: "https://maec-kappa.vercel.app/payment/success",
-        cancel_url: "https://maec-kappa.vercel.app/payment/failed",
-        shipping_preference: "NO_SHIPPING",
-        user_action: "PAY_NOW",
-        brand_name: "MAEC.us",
       },
-    }),
-  });
-  const link =  response.data.links.find((link:any) => link.rel === "approve").href
-  res.json(link);
+    });
+
+    const approveLink = response.data.links?.find(
+      (link: any) => link.rel === "approve"
+    );
+
+    if (!approveLink) {
+      return res.status(500).json({ error: "PayPal approve link not found" });
+    }
+
+    res.json(approveLink.href);
+
+  } catch (error: any) {
+    console.error("PayPal Order Error:", error?.response?.data || error);
+    res.status(500).json({
+      message: "PayPal order creation failed",
+      error: error?.response?.data || error.message,
+    });
+  }
 };
 
-export const capturePaypalPayment = async (req:Request, res:Response) => {
+export const capturePaypalPayment = async (req: Request, res: Response) => {
   const orderId = req.body.id;
   try {
     const accessToken = await generateAccessToken();
@@ -141,7 +165,6 @@ export const capturePaypalPayment = async (req:Request, res:Response) => {
       }
     });
 
-    console.log('Capture Response:', response.data);
     return res.json(response.data);
   } catch (error) {
     console.error('Error capturing payment:');

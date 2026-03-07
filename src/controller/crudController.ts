@@ -385,14 +385,12 @@ export const getDocumentByUserId = async (req: Request, res: Response) => {
     const evaluation = await prisma.evaluation.findFirst({
       where: {
         userId: userId,
-        documents: {
-          paid_amount: 0,
-        },
       },
     });
     if (!evaluation) {
-      throw new Error("Document");
+      return res.status(201).json({ message: "No Evaluation found" });
     }
+
     const documentData = await prisma.documents.findUnique({
       where: {
         evaluationId: evaluation?.id,
@@ -486,12 +484,12 @@ export const addTotalAmt = async (req: Request, res: Response) => {
   }
 };
 export const compeltePayment = async (req: Request, res: Response) => {
-  const userId = req.body.id;
+  const { id, order_id } = req.body
 
   try {
     const evaluation = await prisma.evaluation.findFirst({
       where: {
-        userId: userId,
+        userId: id,
         documents: {
           paid_amount: 0,
         },
@@ -508,6 +506,7 @@ export const compeltePayment = async (req: Request, res: Response) => {
         },
         data: {
           paid_amount: evaluation.documents?.amount_to_pay,
+          order_id
         },
       });
     }
