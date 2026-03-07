@@ -125,7 +125,7 @@ const makePaymentPaypal = (req, res) => __awaiter(void 0, void 0, void 0, functi
                     cancel_url: "https://www.internationaltranslationservice.de/payment/failed",
                     shipping_preference: "NO_SHIPPING",
                     user_action: "PAY_NOW",
-                    brand_name: "ITS.us",
+                    brand_name: "internationaltranslationservice.de",
                 },
             },
         });
