@@ -84,7 +84,7 @@ const makePaymentPaypal = (req, res) => __awaiter(void 0, void 0, void 0, functi
             name: item.name,
             quantity: item.quantity.toString(),
             unit_amount: {
-                currency_code: "USD",
+                currency_code: "EUR",
                 value: item.amount.toFixed(2),
             },
         }));
@@ -109,11 +109,11 @@ const makePaymentPaypal = (req, res) => __awaiter(void 0, void 0, void 0, functi
                     {
                         items: mappedItems,
                         amount: {
-                            currency_code: "USD",
+                            currency_code: "EUR",
                             value: totalAmount,
                             breakdown: {
                                 item_total: {
-                                    currency_code: "USD",
+                                    currency_code: "EUR",
                                     value: totalAmount,
                                 },
                             },

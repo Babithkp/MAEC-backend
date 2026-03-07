@@ -83,7 +83,7 @@ export const makePaymentPaypal = async (req: Request, res: Response) => {
       name: item.name,
       quantity: item.quantity.toString(),
       unit_amount: {
-        currency_code: "USD",
+        currency_code: "EUR",
         value: item.amount.toFixed(2),
       },
     }));
@@ -111,11 +111,11 @@ export const makePaymentPaypal = async (req: Request, res: Response) => {
           {
             items: mappedItems,
             amount: {
-              currency_code: "USD",
+              currency_code: "EUR",
               value: totalAmount,
               breakdown: {
                 item_total: {
-                  currency_code: "USD",
+                  currency_code: "EUR",
                   value: totalAmount,
                 },
               },
