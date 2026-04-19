@@ -48,20 +48,20 @@ const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const loginDetails = req.body;
     if (!loginDetails)
         return res.json({ error: "Login data is required" });
-    if (loginDetails.email === "admin@gmail.com") {
-        if (loginDetails.password === "admin") {
+    if (loginDetails.email.trim() === "admin@gmail.com") {
+        if (loginDetails.password.trim() === "admin") {
             return res.json({ admin: "login admin" });
         }
         return res.json({ wrongPassword: "wrong password" });
     }
     try {
         const response = yield prisma.user.findUnique({
-            where: { email_address: loginDetails.email },
+            where: { email_address: loginDetails.email.trim() },
         });
         if (!response) {
             return res.json({ userNotFound: "user not found" });
         }
-        if ((response === null || response === void 0 ? void 0 : response.password) !== loginDetails.password) {
+        if ((response === null || response === void 0 ? void 0 : response.password) !== loginDetails.password.trim()) {
             return res.json({ wrongPassword: "wrong password" });
         }
         else {

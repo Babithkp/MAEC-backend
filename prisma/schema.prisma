@@ -57,4 +57,5 @@ model Documents {
   paid_amount    Int?       @default(0)
   amount_to_pay  Int?       @default(0)
   order_id       String?
+  createdAt      DateTime?  @updatedAt
 }
