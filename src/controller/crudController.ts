@@ -411,40 +411,68 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
     const offset = parseInt(req.query.offset as string) || 0;
     const search = req.query.search as string | undefined;
 
-    const userData = await prisma.user.findMany({
+    // 🔥 Step 1: Fetch data (NO orderBy here)
+    const rawData = await prisma.user.findMany({
       where: search
         ? {
-          OR: [
-            { email_address: { contains: search, mode: "insensitive" } },
-            {
-              profile: {
-                first_name: { contains: search, mode: "insensitive" },
+            OR: [
+              {
+                email_address: {
+                  contains: search,
+                  mode: "insensitive",
+                },
               },
-            },
-            {
-              profile: {
-                last_name: { contains: search, mode: "insensitive" },
+              {
+                profile: {
+                  first_name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
               },
-            },
-          ],
-        }
+              {
+                profile: {
+                  last_name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            ],
+          }
         : undefined,
       include: {
         profile: true,
         evaluation: {
           include: {
-            documents: true,
+            documents: true, // 1:1 relation
           },
         },
       },
-      skip: offset,
-      take: limit,
-      orderBy: {
-        createdAt: "desc",
-      },
     });
 
-    res.json({ data: userData });
+    // 🔥 Step 2: Sort by documents.createdAt (latest first)
+    const sortedData = rawData.sort((a, b) => {
+      const aDate = new Date(
+        a.evaluation?.[0]?.documents?.createdAt || 0
+      ).getTime();
+
+      const bDate = new Date(
+        b.evaluation?.[0]?.documents?.createdAt || 0
+      ).getTime();
+
+      return bDate - aDate;
+    });
+
+    // 🔥 Step 3: Apply pagination AFTER sorting
+    const paginatedData = sortedData.slice(offset, offset + limit);
+
+    res.json({
+      data: paginatedData,
+      total: sortedData.length,
+      limit,
+      offset,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch user details." });
