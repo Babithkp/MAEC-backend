@@ -15,6 +15,7 @@ if (!stripeKey) {
 }
 const stripe = new Stripe(stripeKey);
 
+
 export const makePaymentStripe = async (req: Request, res: Response) => {
   const paymentData = req.body.data;
   if (!paymentData) return res.json({ error: "Invalid data provided" });

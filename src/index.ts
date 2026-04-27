@@ -52,6 +52,7 @@ app.get("/api/getAllUserDetails", getAllUserDetails);
 
 app.post("/api/makePaymentStripe",makePaymentStripe)
 
+
 app.post("/api/makePaymentPaypal",makePaymentPaypal)
 
 app.post("/api/capturePaypalPayment",capturePaypalPayment)
