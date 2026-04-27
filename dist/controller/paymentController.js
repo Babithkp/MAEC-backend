@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.capturePaypalPayment = exports.makePaymentPaypal = exports.makePayment = void 0;
+exports.capturePaypalPayment = exports.makePaymentPaypal = exports.makePaymentStripe = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const axios_1 = __importDefault(require("axios"));
 const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -20,13 +20,13 @@ if (!stripeKey) {
     throw new Error("Please provide a publish key");
 }
 const stripe = new stripe_1.default(stripeKey);
-const makePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const makePaymentStripe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paymentData = req.body.data;
     if (!paymentData)
         return res.json({ error: "Invalid data provided" });
     const lineItems = paymentData.map((product) => ({
         price_data: {
-            currency: "usd",
+            currency: "EUR",
             product_data: {
                 name: product.name,
             },
@@ -37,11 +37,11 @@ const makePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const session = yield stripe.checkout.sessions.create({
         line_items: lineItems,
         mode: "payment",
-        success_url: "https://maec.us/payment/success",
-        cancel_url: "https://maec.us/payment/failed",
+        success_url: "https://www.internationaltranslationservice.de/payment/success",
+        cancel_url: "https://www.internationaltranslationservice.de/payment/failed",
         custom_text: {
             submit: {
-                message: 'Pay for maec.us',
+                message: 'Pay for internationaltranslationservice.de',
             },
         }
     });
@@ -52,7 +52,7 @@ const makePayment = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(500).json({ error: "Failed to create session" });
     }
 });
-exports.makePayment = makePayment;
+exports.makePaymentStripe = makePaymentStripe;
 function generateAccessToken() {
     return __awaiter(this, void 0, void 0, function* () {
         const PAYPAL_BASE_URL = process.env.PAYPAL_BASE_URL;

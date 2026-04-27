@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 import dotenv from "dotenv";
-import { capturePaypalPayment, makePayment, makePaymentPaypal } from "./controller/paymentController";
+import { capturePaypalPayment,  makePaymentPaypal, makePaymentStripe } from "./controller/paymentController";
 dotenv.config();
 
 const storage = multer.memoryStorage();
@@ -50,7 +50,7 @@ app.post("/api/getDocumentByUserId", getDocumentByUserId);
 
 app.get("/api/getAllUserDetails", getAllUserDetails);
 
-app.post("/api/makePayment",makePayment)
+app.post("/api/makePaymentStripe",makePaymentStripe)
 
 app.post("/api/makePaymentPaypal",makePaymentPaypal)
 

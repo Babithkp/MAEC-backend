@@ -15,13 +15,13 @@ if (!stripeKey) {
 }
 const stripe = new Stripe(stripeKey);
 
-export const makePayment = async (req: Request, res: Response) => {
+export const makePaymentStripe = async (req: Request, res: Response) => {
   const paymentData = req.body.data;
   if (!paymentData) return res.json({ error: "Invalid data provided" });
 
   const lineItems = paymentData.map((product: PaymentItemType) => ({
     price_data: {
-      currency: "usd",
+      currency: "EUR",
       product_data: {
         name: product.name,
       },
@@ -33,11 +33,11 @@ export const makePayment = async (req: Request, res: Response) => {
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems,
     mode: "payment",
-    success_url: "https://maec.us/payment/success",
-    cancel_url: "https://maec.us/payment/failed",
+    success_url: "https://www.internationaltranslationservice.de/payment/success",
+    cancel_url: "https://www.internationaltranslationservice.de/payment/failed",
     custom_text: {
       submit: {
-        message: 'Pay for maec.us',
+        message: 'Pay for internationaltranslationservice.de',
       },
     }
   });
