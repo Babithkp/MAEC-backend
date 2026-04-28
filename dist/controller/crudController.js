@@ -433,31 +433,19 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const limit = parseInt(req.query.limit) || 20;
         const offset = parseInt(req.query.offset) || 0;
         const search = req.query.search;
-        // 🔥 Step 1: Fetch data (NO orderBy here)
         const rawData = yield prisma.user.findMany({
             where: search
                 ? {
                     OR: [
+                        { email_address: { contains: search, mode: "insensitive" } },
                         {
-                            email_address: {
-                                contains: search,
-                                mode: "insensitive",
+                            profile: {
+                                first_name: { contains: search, mode: "insensitive" },
                             },
                         },
                         {
                             profile: {
-                                first_name: {
-                                    contains: search,
-                                    mode: "insensitive",
-                                },
-                            },
-                        },
-                        {
-                            profile: {
-                                last_name: {
-                                    contains: search,
-                                    mode: "insensitive",
-                                },
+                                last_name: { contains: search, mode: "insensitive" },
                             },
                         },
                     ],
@@ -467,19 +455,21 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 profile: true,
                 evaluation: {
                     include: {
-                        documents: true, // 1:1 relation
+                        documents: true,
                     },
                 },
             },
         });
-        // 🔥 Step 2: Sort by documents.createdAt (latest first)
+        // 🔥 get highest paid amount per user
+        const getPaidAmount = (user) => {
+            var _a;
+            const amounts = ((_a = user.evaluation) === null || _a === void 0 ? void 0 : _a.map((ev) => { var _a, _b; return (_b = (_a = ev.documents) === null || _a === void 0 ? void 0 : _a.paid_amount) !== null && _b !== void 0 ? _b : 0; })) || [];
+            return Math.max(...amounts, 0);
+        };
+        // 🔥 sort by paid amount
         const sortedData = rawData.sort((a, b) => {
-            var _a, _b, _c, _d, _e, _f;
-            const aDate = new Date(((_c = (_b = (_a = a.evaluation) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.documents) === null || _c === void 0 ? void 0 : _c.createdAt) || 0).getTime();
-            const bDate = new Date(((_f = (_e = (_d = b.evaluation) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.documents) === null || _f === void 0 ? void 0 : _f.createdAt) || 0).getTime();
-            return bDate - aDate;
+            return getPaidAmount(b) - getPaidAmount(a);
         });
-        // 🔥 Step 3: Apply pagination AFTER sorting
         const paginatedData = sortedData.slice(offset, offset + limit);
         res.json({
             data: paginatedData,
