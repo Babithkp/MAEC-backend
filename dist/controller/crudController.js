@@ -433,7 +433,24 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const limit = parseInt(req.query.limit) || 20;
         const offset = parseInt(req.query.offset) || 0;
         const search = req.query.search;
-        const rawData = yield prisma.user.findMany({
+        const userCount = yield prisma.user.count({
+            where: search ? {
+                OR: [
+                    { email_address: { contains: search, mode: "insensitive" } },
+                    {
+                        profile: {
+                            first_name: { contains: search, mode: "insensitive" },
+                        },
+                    },
+                    {
+                        profile: {
+                            last_name: { contains: search, mode: "insensitive" },
+                        },
+                    },
+                ],
+            } : undefined,
+        });
+        const userData = yield prisma.user.findMany({
             where: search
                 ? {
                     OR: [
@@ -459,21 +476,22 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
                     },
                 },
             },
+            orderBy: {
+                updatedAt: "desc",
+            },
+            skip: offset,
+            take: limit,
         });
-        // 🔥 get highest paid amount per user
-        const getPaidAmount = (user) => {
-            var _a;
-            const amounts = ((_a = user.evaluation) === null || _a === void 0 ? void 0 : _a.map((ev) => { var _a, _b; return (_b = (_a = ev.documents) === null || _a === void 0 ? void 0 : _a.paid_amount) !== null && _b !== void 0 ? _b : 0; })) || [];
-            return Math.max(...amounts, 0);
-        };
-        // 🔥 sort by paid amount
-        const sortedData = rawData.sort((a, b) => {
-            return getPaidAmount(b) - getPaidAmount(a);
+        userData.sort((a, b) => {
+            if (!a.createdAt)
+                return 1;
+            if (!b.createdAt)
+                return -1;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
-        const paginatedData = sortedData.slice(offset, offset + limit);
         res.json({
-            data: paginatedData,
-            total: sortedData.length,
+            data: userData,
+            total: userCount,
             limit,
             offset,
         });
@@ -539,6 +557,14 @@ const compeltePayment = (req, res) => __awaiter(void 0, void 0, void 0, function
                 data: {
                     paid_amount: (_a = evaluation.documents) === null || _a === void 0 ? void 0 : _a.amount_to_pay,
                     order_id
+                },
+            });
+            yield prisma.user.update({
+                where: {
+                    id: id,
+                },
+                data: {
+                    updatedAt: new Date(),
                 },
             });
         }

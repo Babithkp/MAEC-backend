@@ -23,7 +23,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 import dotenv from "dotenv";
 import { capturePaypalPayment,  makePaymentPaypal, makePaymentStripe } from "./controller/paymentController";
+import { PrismaClient } from "@prisma/client";
 dotenv.config();
+
+const prisma = new PrismaClient();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });

@@ -411,23 +411,41 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
     const offset = parseInt(req.query.offset as string) || 0;
     const search = req.query.search as string | undefined;
 
-    const rawData = await prisma.user.findMany({
+    const userCount = await prisma.user.count({
+      where: search ? {
+        OR: [
+          { email_address: { contains: search, mode: "insensitive" } },
+          {
+            profile: {
+              first_name: { contains: search, mode: "insensitive" },
+            },
+          },
+          {
+            profile: {
+              last_name: { contains: search, mode: "insensitive" },
+            },
+          },
+        ],
+      } : undefined,
+    });
+
+    const userData = await prisma.user.findMany({
       where: search
         ? {
-            OR: [
-              { email_address: { contains: search, mode: "insensitive" } },
-              {
-                profile: {
-                  first_name: { contains: search, mode: "insensitive" },
-                },
+          OR: [
+            { email_address: { contains: search, mode: "insensitive" } },
+            {
+              profile: {
+                first_name: { contains: search, mode: "insensitive" },
               },
-              {
-                profile: {
-                  last_name: { contains: search, mode: "insensitive" },
-                },
+            },
+            {
+              profile: {
+                last_name: { contains: search, mode: "insensitive" },
               },
-            ],
-          }
+            },
+          ],
+        }
         : undefined,
       include: {
         profile: true,
@@ -437,28 +455,23 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
           },
         },
       },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      skip: offset,
+      take: limit,
     });
 
-    // 🔥 get highest paid amount per user
-    const getPaidAmount = (user: any) => {
-      const amounts =
-        user.evaluation?.map((ev: any) =>
-          ev.documents?.paid_amount ?? 0
-        ) || [];
-
-      return Math.max(...amounts, 0);
-    };
-
-    // 🔥 sort by paid amount
-    const sortedData = rawData.sort((a, b) => {
-      return getPaidAmount(b) - getPaidAmount(a);
+    userData.sort((a, b) => {
+      if (!a.createdAt) return 1;
+      if (!b.createdAt) return -1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    const paginatedData = sortedData.slice(offset, offset + limit);
 
     res.json({
-      data: paginatedData,
-      total: sortedData.length,
+      data: userData,
+      total: userCount,
       limit,
       offset,
     });
@@ -500,10 +513,15 @@ export const addTotalAmt = async (req: Request, res: Response) => {
     res.json({ error: "Invalid User data provided" });
   }
 };
+
+
+
+
 export const compeltePayment = async (req: Request, res: Response) => {
   const { id, order_id } = req.body
 
   try {
+
     const evaluation = await prisma.evaluation.findFirst({
       where: {
         userId: id,
@@ -524,6 +542,15 @@ export const compeltePayment = async (req: Request, res: Response) => {
         data: {
           paid_amount: evaluation.documents?.amount_to_pay,
           order_id
+        },
+      });
+
+      await prisma.user.update({
+        where: {
+          id: id,
+        },
+        data: {
+          updatedAt: new Date(),
         },
       });
     }
