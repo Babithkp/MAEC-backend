@@ -451,23 +451,23 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
             } : undefined,
         });
         const userData = yield prisma.user.findMany({
-            where: search
+            where: Object.assign(Object.assign({}, (search
                 ? {
                     OR: [
                         { email_address: { contains: search, mode: "insensitive" } },
-                        {
-                            profile: {
-                                first_name: { contains: search, mode: "insensitive" },
-                            },
-                        },
-                        {
-                            profile: {
-                                last_name: { contains: search, mode: "insensitive" },
-                            },
-                        },
+                        { profile: { first_name: { contains: search, mode: "insensitive" } } },
+                        { profile: { last_name: { contains: search, mode: "insensitive" } } },
                     ],
                 }
-                : undefined,
+                : {})), { evaluation: {
+                    some: {
+                        documents: {
+                            paid_amount: {
+                                gt: 0,
+                            },
+                        },
+                    },
+                } }),
             include: {
                 profile: true,
                 evaluation: {
@@ -482,12 +482,13 @@ const getAllUserDetails = (req, res) => __awaiter(void 0, void 0, void 0, functi
             skip: offset,
             take: limit,
         });
-        userData.sort((a, b) => {
-            if (!a.createdAt)
-                return 1;
-            if (!b.createdAt)
-                return -1;
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        userData.forEach(user => {
+            user.evaluation.forEach(evaluation => {
+                var _a;
+                if (((_a = evaluation.documents) === null || _a === void 0 ? void 0 : _a.paid_amount) === 0) {
+                    evaluation.documents = null;
+                }
+            });
         });
         res.json({
             data: userData,

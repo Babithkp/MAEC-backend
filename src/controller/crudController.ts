@@ -430,23 +430,28 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
     });
 
     const userData = await prisma.user.findMany({
-      where: search
-        ? {
-          OR: [
-            { email_address: { contains: search, mode: "insensitive" } },
-            {
-              profile: {
-                first_name: { contains: search, mode: "insensitive" },
+      where: {
+        ...(search
+          ? {
+              OR: [
+                { email_address: { contains: search, mode: "insensitive" } },
+                { profile: { first_name: { contains: search, mode: "insensitive" } } },
+                { profile: { last_name: { contains: search, mode: "insensitive" } } },
+              ],
+            }
+          : {}),
+    
+        evaluation: {
+          some: {
+            documents: {
+              paid_amount: {
+                gt: 0,
               },
             },
-            {
-              profile: {
-                last_name: { contains: search, mode: "insensitive" },
-              },
-            },
-          ],
-        }
-        : undefined,
+          },
+        },
+      },
+    
       include: {
         profile: true,
         evaluation: {
@@ -455,6 +460,7 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
           },
         },
       },
+    
       orderBy: {
         updatedAt: "desc",
       },
@@ -462,11 +468,13 @@ export const getAllUserDetails = async (req: Request, res: Response) => {
       take: limit,
     });
 
-    userData.sort((a, b) => {
-      if (!a.createdAt) return 1;
-      if (!b.createdAt) return -1;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+      userData.forEach(user => {
+        user.evaluation.forEach(evaluation => {   
+          if (evaluation.documents?.paid_amount === 0) {
+            evaluation.documents = null;
+          }
+        });
+      });
 
 
     res.json({
