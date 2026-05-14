@@ -34,8 +34,8 @@ export const makePaymentStripe = async (req: Request, res: Response) => {
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems,
     mode: "payment",
-    success_url: "https://www.internationaltranslationservice.de/payment/success",
-    cancel_url: "https://www.internationaltranslationservice.de/payment/failed",
+    success_url: "https://www.internationaltranslationsservice.com/payment/success",
+    cancel_url: "https://www.internationaltranslationsservice.com/payment/failed",
     custom_text: {
       submit: {
         message: 'Pay for internationaltranslationservice.de',
@@ -124,8 +124,8 @@ export const makePaymentPaypal = async (req: Request, res: Response) => {
           },
         ],
         application_context: {
-          return_url: "https://www.internationaltranslationservice.de/payment/success",
-          cancel_url: "https://www.internationaltranslationservice.de/payment/failed",
+          return_url: "https://www.internationaltranslationsservice.com/payment/success",
+          cancel_url: "https://www.internationaltranslationsservice.com/payment/failed",
           shipping_preference: "NO_SHIPPING",
           user_action: "PAY_NOW",
           brand_name: "internationaltranslationservice.de",
