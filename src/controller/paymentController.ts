@@ -89,6 +89,7 @@ export const makePaymentPaypal = async (req: Request, res: Response) => {
       },
     }));
 
+    
     const totalAmount = mappedItems
       .reduce((total: number, item: any) => {
         const itemAmount = parseFloat(item.unit_amount.value);
